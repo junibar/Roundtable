@@ -3,19 +3,20 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>가중 돌림판 v2 (1·2·4·8)</title>
+<title>가중 돌림판 v3 — 트레이드/드래프트/아이콘/아이콘·드래프트</title>
 <style>
   :root{
-    --bg:#0b0f14; --panel:#101720; --panel2:#0d141c; --text:#e7edf5; --muted:#9fb3c8;
-    --c1:#F59E0B; --c2:#10B981; --c3:#3B82F6; --c4:#EF4444; /* segment colors */
-    --accent:#7dd3fc;
+    --bg:#0a0f14; --panel:#0e151e; --panel2:#0b1118; --text:#eaf1f8; --muted:#9fb3c8; --accent:#7dd3fc;
+    --c1:#f59e0b; /* 트레이드 */
+    --c2:#10b981; /* 드래프트 */
+    --c3:#3b82f6; /* 아이콘 */
+    --c4:#ef4444; /* 아이콘/드래프트 */
   }
   *{box-sizing:border-box}
   html,body{height:100%}
   body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",Malgun Gothic,Apple SD Gothic Neo,Arial; background:
     radial-gradient(900px 600px at 70% -10%, rgba(125,211,252,.10), transparent 60%),
-    radial-gradient(800px 500px at -10% 110%, rgba(34,197,94,.08), transparent 60%),
-    var(--bg); color:var(--text)}
+    radial-gradient(800px 500px at -10% 110%, rgba(34,197,94,.08), transparent 60%), var(--bg); color:var(--text)}
   .wrap{max-width:1100px;margin:32px auto;padding:0 18px;display:grid;grid-template-columns:1fr 380px;gap:24px}
   @media (max-width:980px){.wrap{grid-template-columns:1fr}}
   .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid rgba(255,255,255,.06);border-radius:22px;padding:18px;box-shadow:0 30px 80px rgba(0,0,0,.45), inset 0 0 60px rgba(255,255,255,.03)}
@@ -25,6 +26,7 @@
   .stage{display:grid;place-items:center;padding:6px}
   .board{position:relative;width:min(80vw,560px);aspect-ratio:1/1}
   svg{position:absolute;inset:0}
+  .wheel{transition: transform 4.2s cubic-bezier(.17,.85,.22,1); transform-box: fill-box; transform-origin: center;}
   .pointer{position:absolute;left:50%;top:-6px;transform:translateX(-50%);width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-bottom:26px solid var(--accent);filter:drop-shadow(0 8px 18px rgba(125,211,252,.45))}
   .pointer-cap{position:absolute;left:50%;top:16px;transform:translateX(-50%);width:26px;height:26px;border-radius:50%;background:#0f172a;border:2px solid rgba(255,255,255,.6);box-shadow:0 8px 24px rgba(0,0,0,.6)}
 
@@ -45,17 +47,15 @@
 <body>
   <div class="wrap">
     <section class="card">
-      <h1>가중 돌림판 v2 · 1 / 2 / 4 / 8</h1>
-      <p>확률은 <strong>역순 가중</strong> (기본 α=0.55)으로 설정됩니다. 라벨은 중앙이 아닌 <strong>바깥 링</strong>에 배치했습니다.</p>
+      <h1>가중 돌림판 v3 · 트레이드 / 드래프트 / 아이콘 / 아이콘·드래프트</h1>
+      <p>확률은 <strong>역순 가중</strong> 기본(α=0.55)입니다. 라벨은 중앙이 아닌 <strong>바깥 링</strong>에 배치했습니다.</p>
 
       <div class="stage">
         <div class="board">
           <div class="pointer"></div>
           <div class="pointer-cap"></div>
           <svg id="svg" viewBox="0 0 600 600" aria-label="가중 돌림판">
-            <!-- Wheel group rotates -->
-            <g id="wheel" transform="rotate(0,300,300)" style="transition: transform 4.2s cubic-bezier(.17,.85,.22,1)"></g>
-            <!-- Hub gloss -->
+            <g id="wheel" class="wheel"></g>
             <circle cx="300" cy="300" r="78" fill="url(#hubGrad)" stroke="rgba(255,255,255,.18)" />
             <defs>
               <radialGradient id="hubGrad" cx="35%" cy="35%" r="65%">
@@ -68,15 +68,16 @@
         </div>
         <div class="controls">
           <button id="spinBtn" class="btn">SPIN</button>
+          <button id="resetBtn" class="btn" type="button">RESET</button>
           <label style="display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:600">α
             <input id="alpha" class="slider" type="range" min="0" max="1" step="0.01" value="0.55" />
             <span id="alphaVal" style="min-width:48px;text-align:right;color:#fff">0.55</span>
           </label>
           <div class="legend">
-            <span class="sw" style="background:var(--c1)"></span> 1 ·
-            <span class="sw" style="background:var(--c2)"></span> 2 ·
-            <span class="sw" style="background:var(--c3)"></span> 4 ·
-            <span class="sw" style="background:var(--c4)"></span> 8
+            <span class="sw" style="background:var(--c1)"></span> 트레이드 ·
+            <span class="sw" style="background:var(--c2)"></span> 드래프트 ·
+            <span class="sw" style="background:var(--c3)"></span> 아이콘 ·
+            <span class="sw" style="background:var(--c4)"></span> 아이콘/드래프트
           </div>
         </div>
         <div id="readout" class="readout">결과가 여기에 표시됩니다.</div>
@@ -85,9 +86,9 @@
 
     <aside class="card">
       <h1>분포</h1>
-      <p>역순 가중치: 8, 4, 2, 1 → 가중^α 정규화</p>
+      <p>역순 가중치(1→8): 8, 4, 2, 1 → <code>w^α</code> 정규화</p>
       <table>
-        <thead><tr><th>값</th><th>확률</th><th>각도(°)</th></tr></thead>
+        <thead><tr><th>항목</th><th>확률</th><th>각도(°)</th></tr></thead>
         <tbody id="tbody"></tbody>
       </table>
     </aside>
@@ -98,37 +99,31 @@
   const svg = document.getElementById('svg');
   const gWheel = document.getElementById('wheel');
   const spinBtn = document.getElementById('spinBtn');
+  const resetBtn = document.getElementById('resetBtn');
   const alphaEl = document.getElementById('alpha');
   const alphaVal = document.getElementById('alphaVal');
   const readout = document.getElementById('readout');
   const tbody = document.getElementById('tbody');
 
+  // 데이터: 값 및 라벨
   const values = [1,2,4,8];
+  const labels = ['트레이드','드래프트','아이콘','아이콘/드래프트'];
   const reverseWeights = [8,4,2,1];
-  const colors = [getCSS('--c1'), getCSS('--c2'), getCSS('--c3'), getCSS('--c4')];
+  const colors = [css('--c1'), css('--c2'), css('--c3'), css('--c4')];
 
-  const cx=300, cy=300, rOuter=270, rInner=130, rLabel=300; // donut + label radius (outside)
+  const cx=300, cy=300, rOuter=270, rInner=130, rLabel=300; // donut + label ring
 
-  let rotation = 0; // cumulative deg
+  let rotation = 0; // 누적 회전각 (deg)
   let spinning = false;
+  const state = {segments:[], probs:[]};
 
-  function getCSS(name){
-    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-  }
-
+  function css(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
   function toRadFromTop(deg){ return (deg - 90) * Math.PI / 180; }
-
-  function polar(r, angTop){
-    const t = toRadFromTop(angTop);
-    return [cx + r * Math.cos(t), cy + r * Math.sin(t)];
-  }
+  function polar(r, angTop){ const t=toRadFromTop(angTop); return [cx + r*Math.cos(t), cy + r*Math.sin(t)]; }
 
   function arcPath(rOut, rIn, a0, a1){
-    // a0,a1 in degrees from top (clockwise increasing)
-    const [x0,y0] = polar(rOut, a0);
-    const [x1,y1] = polar(rOut, a1);
-    const [xi,yi] = polar(rIn, a1);
-    const [xj,yj] = polar(rIn, a0);
+    const [x0,y0] = polar(rOut, a0);  const [x1,y1] = polar(rOut, a1);
+    const [xi,yi] = polar(rIn, a1);   const [xj,yj] = polar(rIn, a0);
     const large = (a1 - a0) > 180 ? 1 : 0;
     return [
       `M ${x0.toFixed(3)} ${y0.toFixed(3)}`,
@@ -139,136 +134,118 @@
     ].join(' ');
   }
 
-  function placeLabel(text, angle){
+  function makeText(text, angle){
     const [x,y] = polar(rLabel, angle);
     const el = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    el.setAttribute('x', x.toFixed(2));
-    el.setAttribute('y', y.toFixed(2));
-    el.setAttribute('text-anchor', 'middle');
-    el.setAttribute('dominant-baseline', 'middle');
-    el.setAttribute('font-weight', '800');
-    el.setAttribute('font-size', '22');
-    el.setAttribute('fill', '#0b0b0b');
-    el.setAttribute('stroke', 'rgba(255,255,255,.55)');
-    el.setAttribute('stroke-width', '0.6');
-    el.textContent = text;
-    return el;
+    el.setAttribute('x', x.toFixed(2)); el.setAttribute('y', y.toFixed(2));
+    el.setAttribute('text-anchor', 'middle'); el.setAttribute('dominant-baseline', 'middle');
+    el.setAttribute('font-weight', '800'); el.setAttribute('font-size', '20');
+    el.setAttribute('fill', '#0b0b0b'); el.setAttribute('stroke', 'rgba(255,255,255,.55)'); el.setAttribute('stroke-width', '0.6');
+    el.textContent = text; return el;
   }
 
-  function lineAt(angle){
-    const [x0,y0] = polar(rInner-2, angle);
-    const [x1,y1] = polar(rOuter+2, angle);
+  function guideLine(angle){
+    const [x0,y0] = polar(rInner-2, angle); const [x1,y1] = polar(rOuter+2, angle);
     const el = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     el.setAttribute('x1', x0); el.setAttribute('y1', y0);
     el.setAttribute('x2', x1); el.setAttribute('y2', y1);
-    el.setAttribute('stroke', 'rgba(255,255,255,.22)');
-    el.setAttribute('stroke-width', '1');
+    el.setAttribute('stroke', 'rgba(255,255,255,.22)'); el.setAttribute('stroke-width', '1');
     return el;
   }
 
-  function computeProbs(alpha){
+  function probsFromAlpha(alpha){
     const w = reverseWeights.map(v => Math.pow(v, alpha));
     const s = w.reduce((a,b)=>a+b,0);
-    return w.map(v => v/s); // normalized
+    return w.map(v => v/s);
   }
 
   function rebuild(alpha){
-    // probs and segments
-    const probs = computeProbs(alpha);
+    const probs = probsFromAlpha(alpha);
     // clear
     while (gWheel.firstChild) gWheel.removeChild(gWheel.firstChild);
     while (tbody.firstChild) tbody.removeChild(tbody.firstChild);
 
-    // build segments
-    let a0 = 0; // start at top (pointer)
-    const segments = values.map((label, i) => {
-      const sweep = probs[i]*360;
-      const a1 = a0 + sweep;
-      // donut path
+    // segments
+    let a0 = 0; // 12시부터 시계방향
+    const segments = values.map((val, i) => {
+      const sweep = probs[i]*360; const a1 = a0 + sweep; const mid = a0 + sweep/2;
+      // path
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       path.setAttribute('d', arcPath(rOuter, rInner, a0, a1));
       path.setAttribute('fill', colors[i]);
-      path.setAttribute('stroke', 'rgba(0,0,0,.35)');
-      path.setAttribute('stroke-width', '1');
+      path.setAttribute('stroke', 'rgba(0,0,0,.35)'); path.setAttribute('stroke-width', '1');
       gWheel.appendChild(path);
-      // boundary line
-      gWheel.appendChild(lineAt(a1));
-      // label on rim (mid)
-      const mid = a0 + sweep/2;
-      gWheel.appendChild(placeLabel(String(label), mid));
-
+      // boundary
+      gWheel.appendChild(guideLine(a1));
+      // label
+      gWheel.appendChild(makeText(labels[i], mid));
       // table row
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${label}</td><td>${(probs[i]*100).toFixed(2)}%</td><td>${sweep.toFixed(2)}</td>`;
+      tr.innerHTML = `<td>${labels[i]}</td><td>${(probs[i]*100).toFixed(2)}%</td><td>${sweep.toFixed(2)}</td>`;
       tbody.appendChild(tr);
 
-      const seg = { label, prob: probs[i], start:a0, end:a1, mid:mid };
-      a0 = a1;
-      return seg;
+      const seg = { idx:i, label:labels[i], prob:probs[i], start:a0, end:a1, mid:mid };
+      a0 = a1; return seg;
     });
 
-    // save for spin
-    state.segments = segments;
-    state.probs = probs;
+    state.segments = segments; state.probs = probs;
   }
 
-  // weighted pick
   function pickWeighted(segments){
-    const r = Math.random();
-    let acc = 0;
-    for (let i=0;i<segments.length;i++){
-      acc += segments[i].prob;
-      if (r < acc) return segments[i];
-    }
+    const r = Math.random(); let acc = 0;
+    for (let i=0;i<segments.length;i++){ acc += segments[i].prob; if (r < acc) return segments[i]; }
     return segments[segments.length-1];
   }
 
   function spin(){
     if (spinning) return; spinning = true; spinBtn.disabled = true;
-    const segments = state.segments;
-    const chosen = pickWeighted(segments);
-    const margin = Math.min(8, (chosen.end - chosen.start) / 6); // deg
-    const targetAngle = randBetween(chosen.start + margin, chosen.end - margin);
-    const extraTurns = randInt(4,6)*360;
-    const rotFinal = extraTurns + targetAngle; // since our 0deg is at top and pointer is at top
+    const segs = state.segments; const chosen = pickWeighted(segs);
+    const margin = Math.min(8, (chosen.end - chosen.start)/6);
+    const target = randBetween(chosen.start + margin, chosen.end - margin); // deg from top
+    // pointer는 12시(0deg). 선택 세그 중앙이 포인터 아래 오도록 회전값 계산
+    const minTurns = randInt(4,6);
+    const base = 360 - target; // 원하는 최종 각도(모듈로 360)
+    const k = Math.ceil((rotation - base + minTurns*360)/360);
+    const rotFinal = base + k*360;
+
     gWheel.style.transition = 'transform 4.2s cubic-bezier(.17,.85,.22,1)';
-    gWheel.setAttribute('transform', `rotate(${rotFinal},${cx},${cy})`);
+    gWheel.style.transform = `rotate(${rotFinal}deg)`;
 
     const onDone = () => {
       gWheel.removeEventListener('transitionend', onDone);
-      rotation = rotFinal % 360;
+      rotation = rotFinal; // 누적
       // wobble
       gWheel.style.transition = 'transform 300ms ease';
-      gWheel.setAttribute('transform', `rotate(${rotFinal+1.2},${cx},${cy})`);
-      setTimeout(()=>{ gWheel.setAttribute('transform', `rotate(${rotFinal},${cx},${cy})`); }, 300);
+      gWheel.style.transform = `rotate(${rotFinal + 1.2}deg)`;
+      setTimeout(()=>{ gWheel.style.transform = `rotate(${rotFinal}deg)`; }, 300);
       spinning = false; spinBtn.disabled = false;
-      readout.innerHTML = `🎯 결과: <strong>${chosen.label}</strong>  (<span style="color:${colors[values.indexOf(chosen.label)]}">${(chosen.prob*100).toFixed(2)}%</span>)`;
+      readout.innerHTML = `🎯 결과: <strong>${chosen.label}</strong>  (<span style="color:${colors[chosen.idx]}">${(chosen.prob*100).toFixed(2)}%</span>)`;
     };
     gWheel.addEventListener('transitionend', onDone);
+  }
+
+  function reset(){
+    rebuild(+alphaEl.value); rotation = 0;
+    gWheel.style.transition = ''; gWheel.style.transform = 'rotate(0deg)';
+    setTimeout(()=>{ gWheel.style.transition = 'transform 4.2s cubic-bezier(.17,.85,.22,1)'; }, 0);
+    readout.textContent = '초기화됨. 다시 SPIN 하세요.';
   }
 
   function randBetween(a,b){ return a + Math.random()*(b-a); }
   function randInt(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
 
-  const state = {segments:[], probs:[]};
-
   // init
   alphaVal.textContent = (+alphaEl.value).toFixed(2);
   rebuild(+alphaEl.value);
 
+  // events
   alphaEl.addEventListener('input', () => {
     alphaVal.textContent = (+alphaEl.value).toFixed(2);
-    rebuild(+alphaEl.value);
+    reset();
   });
   spinBtn.addEventListener('click', spin);
-  resetBtn.addEventListener('click', () => {
-    rebuild(+alphaEl.value);
-    rotation = 0;
-    gWheel.style.transition = '';
-    gWheel.style.transform = 'rotate(0deg)';
-    setTimeout(()=>{ gWheel.style.transition = 'transform 4.2s cubic-bezier(.17,.85,.22,1)'; }, 0);
-    readout.textContent = '초기화됨. 다시 SPIN 하세요.';
-  });
+  resetBtn.addEventListener('click', reset);
+  window.addEventListener('keydown', (e)=>{ if(e.code==='Space'){ e.preventDefault(); spin(); } });
 })();
 </script>
 </body>
