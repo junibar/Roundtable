@@ -84,16 +84,37 @@
       </div>
     </section>
 
-    <aside class="card">
+      <aside class="card">
       <h1>분포</h1>
       <p>역순 가중치(1→8): 8, 4, 2, 1 → <code>w^α</code> 정규화</p>
       <table>
         <thead><tr><th>항목</th><th>확률</th><th>각도(°)</th></tr></thead>
         <tbody id="tbody"></tbody>
       </table>
-    </aside>
-  </div>
 
+      <div id="memo-section" style="margin-top:18px;">
+        <h2 style="font-size:16px;margin:14px 0 8px 0;color:var(--muted)">항목별 메모</h2>
+        <div style="display:grid;grid-template-columns:1fr;gap:8px;">
+          <label style="display:flex;align-items:center;gap:8px;">
+            <span style="width:32px;font-weight:bold;color:var(--c1);">1</span>
+            <textarea id="memo1" rows="1" placeholder="메모 입력" style="flex:1;resize:vertical;border-radius:8px;padding:6px 10px;border:1px solid #23303f;background:rgba(255,255,255,0.05);color:var(--text);font-size:14px;"></textarea>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;">
+            <span style="width:32px;font-weight:bold;color:var(--c2);">2</span>
+            <textarea id="memo2" rows="1" placeholder="메모 입력" style="flex:1;resize:vertical;border-radius:8px;padding:6px 10px;border:1px solid #23303f;background:rgba(255,255,255,0.05);color:var(--text);font-size:14px;"></textarea>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;">
+            <span style="width:32px;font-weight:bold;color:var(--c3);">3</span>
+            <textarea id="memo3" rows="1" placeholder="메모 입력" style="flex:1;resize:vertical;border-radius:8px;padding:6px 10px;border:1px solid #23303f;background:rgba(255,255,255,0.05);color:var(--text);font-size:14px;"></textarea>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;">
+            <span style="width:32px;font-weight:bold;color:var(--c4);">4</span>
+            <textarea id="memo4" rows="1" placeholder="메모 입력" style="flex:1;resize:vertical;border-radius:8px;padding:6px 10px;border:1px solid #23303f;background:rgba(255,255,255,0.05);color:var(--text);font-size:14px;"></textarea>
+          </label>
+        </div>
+      </div>
+    </aside>
+    
 <script>
 (function(){
   const svg = document.getElementById('svg');
